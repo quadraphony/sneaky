@@ -1,0 +1,32 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2096
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "wireguard",
+      "tag": "wg-out",
+      "server": "127.0.0.1",
+      "server_port": 19100,
+      "system_interface": false,
+      "local_address": [
+        "10.7.0.2/32"
+      ],
+      "private_key": "cIwzFxjrEqo97GxhZJJTH2gWpbCaTkaheXdbwKVMMH0=",
+      "peer_public_key": "KCOS4+I08yP0koDSMHyI0siOyZqPp4pUByaKJ8izdDw=",
+      "reserved": [0, 0, 0]
+    }
+  ],
+  "route": {
+    "final": "wg-out",
+    "auto_detect_interface": true
+  }
+}

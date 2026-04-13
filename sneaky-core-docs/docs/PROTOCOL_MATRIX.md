@@ -33,7 +33,7 @@ These future adapter families are **not implemented** unless explicitly stated o
 | VMess | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
 | Trojan | proxy protocol | verified in coverage phase | verified | local TLS loopback runtime and probe passed |
 | Shadowsocks | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
-| WireGuard via sing-box | proxy / tunnel | next candidate | blocked | outbound exists, but loopback peer automation and address assignment are not built yet |
+| WireGuard via sing-box | proxy / tunnel | real fixture added | partially verified | real keys and outbound fixture validate; runtime probe times out without a local peer |
 | Hysteria2 | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
 | TUIC | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
 | SSH via sing-box | proxy protocol | optional after second batch | blocked | local `sshd` runtime is not installed on this machine |

@@ -126,6 +126,23 @@ For each protocol:
 
 ## Blocked Rows
 
+### WireGuard
+- Fixture:
+  - `testdata/singbox/wireguard/client.json`
+- Key generation commands:
+  - `sing-box generate wg-keypair`
+  - `sing-box generate wg-keypair`
+- Validation commands:
+  - `sing-box check -c testdata/singbox/wireguard/client.json`
+  - `go run ./cmd/sneakycli validate testdata/singbox/wireguard/client.json`
+- Runtime command:
+  - `go run ./cmd/sneakycli probe testdata/singbox/wireguard/client.json https://example.com`
+- Observed result:
+  - validation passed
+  - `sneakycli probe` failed with `net/http: TLS handshake timeout`
+  - local `sing-box 1.8.10` has no WireGuard inbound, so a pure sing-box loopback peer is unavailable here
+- Final label: `partially verified`
+
 ### Naive
 - Validation command:
   - `sing-box check -c <naive-fixture>`

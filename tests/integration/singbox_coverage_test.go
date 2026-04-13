@@ -80,6 +80,7 @@ func TestSingboxUtilityFixturesValidate(t *testing.T) {
 	repoRoot := locateRepoRoot(t)
 	checkConfig(t, repoRoot, filepath.Join(repoRoot, "testdata/singbox/utilities/dns.json"))
 	checkConfig(t, repoRoot, filepath.Join(repoRoot, "testdata/singbox/utilities/routing.json"))
+	checkConfig(t, repoRoot, filepath.Join(repoRoot, "testdata/singbox/wireguard/client.json"))
 }
 
 func checkConfig(t *testing.T, repoRoot, path string) {
