@@ -1,0 +1,79 @@
+# Project Structure
+
+This structure is mandatory unless a documented architectural reason requires change.
+
+```text
+sneaky-core/
+├── README.md
+├── go.mod
+├── go.sum
+├── Makefile
+├── docs/
+│   ├── 01_PRODUCT_SCOPE.md
+│   ├── 02_ARCHITECTURE.md
+│   ├── 03_PROJECT_STRUCTURE.md
+│   ├── 04_PHASE_PLAN.md
+│   ├── 05_PROTOCOL_MATRIX.md
+│   ├── 06_CLI_SPEC.md
+│   └── AI_DEV_RULES.md
+├── cmd/
+│   └── sneakycli/
+│       └── main.go
+├── internal/
+│   ├── core/
+│   │   ├── manager.go
+│   │   ├── state.go
+│   │   └── errors.go
+│   ├── config/
+│   │   ├── detector.go
+│   │   ├── parser.go
+│   │   ├── validator.go
+│   │   └── types.go
+│   ├── adapter/
+│   │   ├── adapter.go
+│   │   ├── registry.go
+│   │   └── capabilities.go
+│   ├── adapters/
+│   │   └── singbox/
+│   │       ├── adapter.go
+│   │       ├── runtime.go
+│   │       └── validator.go
+│   ├── runtime/
+│   │   ├── session.go
+│   │   ├── lifecycle.go
+│   │   └── context.go
+│   ├── stats/
+│   │   ├── stats.go
+│   │   └── snapshot.go
+│   └── logx/
+│       ├── logger.go
+│       └── entries.go
+├── pkg/
+│   └── sneaky/
+│       └── sneaky.go
+├── tests/
+│   ├── config/
+│   ├── adapters/
+│   └── integration/
+└── scripts/
+    ├── build.sh
+    └── test.sh
+```
+
+## Structure Rules
+
+- `cmd/` is only for executable entrypoints
+- `pkg/sneaky/` is the stable external package surface
+- `internal/` holds implementation details
+- protocol-specific code must stay inside `internal/adapters/`
+- shared abstractions belong in `internal/adapter/`
+- tests must reflect architecture, not random file placement
+
+## Forbidden Structure Problems
+
+Do not:
+- put everything in one package
+- mix CLI logic with adapter logic
+- mix config detection with runtime control
+- store experimental junk in root
+- create duplicate config models in multiple packages
