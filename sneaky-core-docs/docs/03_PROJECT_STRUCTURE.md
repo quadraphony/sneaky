@@ -16,6 +16,7 @@ sneaky-core/
 │   ├── 05_PROTOCOL_MATRIX.md
 │   ├── 06_CLI_SPEC.md
 │   ├── 07_BINDING_PREPARATION.md
+│   ├── NEXT_STEPS.md
 │   ├── PROTOCOL_MATRIX.md
 │   ├── SINGBOX_COVERAGE_RESULTS.md
 │   ├── prompts/
