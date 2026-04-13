@@ -1,0 +1,28 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2099
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "tor",
+      "tag": "tor-out",
+      "executable_path": ".tools/tor/usr/bin/tor",
+      "data_directory": "testdata/tor/data",
+      "torrc": {
+        "ClientOnly": "1"
+      }
+    }
+  ],
+  "route": {
+    "final": "tor-out",
+    "auto_detect_interface": true
+  }
+}

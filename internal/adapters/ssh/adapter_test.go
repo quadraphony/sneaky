@@ -79,4 +79,36 @@ func TestLoadTunnelConfigDefaults(t *testing.T) {
 	if !strings.EqualFold(cfg.StrictHostKeyChecking, "accept-new") {
 		t.Fatalf("expected default strict host key checking, got %q", cfg.StrictHostKeyChecking)
 	}
+	if cfg.ConnectTimeoutSeconds != 10 {
+		t.Fatalf("expected default connect timeout 10, got %d", cfg.ConnectTimeoutSeconds)
+	}
+	if cfg.ServerAliveInterval != 30 {
+		t.Fatalf("expected default server alive interval 30, got %d", cfg.ServerAliveInterval)
+	}
+	if cfg.ServerAliveCountMax != 3 {
+		t.Fatalf("expected default server alive count max 3, got %d", cfg.ServerAliveCountMax)
+	}
+}
+
+func TestLoadTunnelConfigResolvesKnownHostsFile(t *testing.T) {
+	dir := t.TempDir()
+	knownHostsPath := filepath.Join(dir, "known_hosts")
+	if err := os.WriteFile(knownHostsPath, []byte("example"), 0o600); err != nil {
+		t.Fatalf("write known hosts: %v", err)
+	}
+
+	cfg, err := loadTunnelConfig(adapter.StartRequest{RawConfig: []byte(`{
+	  "ssh_tunnel": {
+	    "host": "example.com",
+	    "user": "demo",
+	    "local_socks_port": 1080,
+	    "known_hosts_file": "` + knownHostsPath + `"
+	  }
+	}`)})
+	if err != nil {
+		t.Fatalf("load tunnel config: %v", err)
+	}
+	if cfg.KnownHostsFile != knownHostsPath {
+		t.Fatalf("expected resolved known hosts path %q, got %q", knownHostsPath, cfg.KnownHostsFile)
+	}
 }

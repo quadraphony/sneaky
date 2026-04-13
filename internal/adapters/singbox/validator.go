@@ -10,6 +10,7 @@ import (
 
 	"sneaky-core/internal/adapter"
 	"sneaky-core/internal/config"
+	"sneaky-core/internal/tools"
 )
 
 func (a *Adapter) prepareConfig(req adapter.StartRequest) (string, func(), error) {
@@ -85,7 +86,11 @@ func (a *Adapter) binary() string {
 	if a.binaryPath != "" {
 		return a.binaryPath
 	}
-	return "sing-box"
+	path, err := tools.ResolveSingbox()
+	if err != nil {
+		return "sing-box"
+	}
+	return path
 }
 
 func noopCleanup() {}

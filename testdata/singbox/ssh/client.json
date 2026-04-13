@@ -1,0 +1,27 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2098
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "ssh",
+      "tag": "ssh-out",
+      "server": "127.0.0.1",
+      "server_port": 22322,
+      "user": "leeroy",
+      "private_key_path": "testdata/ssh/client_ed25519"
+    }
+  ],
+  "route": {
+    "final": "ssh-out",
+    "auto_detect_interface": true
+  }
+}

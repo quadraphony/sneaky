@@ -25,3 +25,6 @@ CLI commands:
 Coverage docs:
 - `docs/PROTOCOL_MATRIX.md`
 - `docs/SINGBOX_COVERAGE_RESULTS.md`
+
+Public package:
+- `pkg/sneaky` is the stable embedding and binding-facing API

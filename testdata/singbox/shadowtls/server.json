@@ -1,0 +1,46 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "shadowtls",
+      "tag": "st-in",
+      "listen": "127.0.0.1",
+      "listen_port": 19443,
+      "version": 2,
+      "password": "shadowtls-password",
+      "handshake": {
+        "server": "127.0.0.1",
+        "server_port": 19444
+      },
+      "detour": "ss-in"
+    },
+    {
+      "type": "shadowsocks",
+      "tag": "ss-in",
+      "listen": "127.0.0.1",
+      "listen_port": 19445,
+      "method": "2022-blake3-aes-128-gcm",
+      "password": "gQJM72RipEK+OgLvf9WuQQ=="
+    },
+    {
+      "type": "http",
+      "tag": "tls-handshake-in",
+      "listen": "127.0.0.1",
+      "listen_port": 19444,
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "certificate_path": "testdata/certs/localhost.crt",
+        "key_path": "testdata/certs/localhost.key"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}

@@ -147,3 +147,27 @@ func TestDetectAndValidateSSHConfig(t *testing.T) {
 		t.Fatalf("expected ssh adapter, got %q", metadata.AdapterID)
 	}
 }
+
+func TestDetectAndValidateSSHConfigRejectsNegativeKeepaliveOptions(t *testing.T) {
+	input, err := Parse([]byte(`{
+		"ssh_tunnel": {
+			"host": "example.com",
+			"user": "demo",
+			"local_socks_port": 1080,
+			"server_alive_interval_seconds": -1
+		}
+	}`), "inline")
+	if err != nil {
+		t.Fatalf("parse input: %v", err)
+	}
+
+	_, err = DetectAndValidate(input)
+	if err == nil {
+		t.Fatal("expected validation failure")
+	}
+
+	var cfgErr *ValidationError
+	if !errors.As(err, &cfgErr) || cfgErr.Code != ErrCodeMissingRequiredField {
+		t.Fatalf("expected missing required field error, got %v", err)
+	}
+}

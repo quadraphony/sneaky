@@ -1,0 +1,41 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2095
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "shadowtls",
+      "tag": "st-out",
+      "server": "127.0.0.1",
+      "server_port": 19443,
+      "version": 2,
+      "password": "shadowtls-password",
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "insecure": true
+      }
+    },
+    {
+      "type": "shadowsocks",
+      "tag": "ss-out",
+      "server": "127.0.0.1",
+      "server_port": 19445,
+      "method": "2022-blake3-aes-128-gcm",
+      "password": "gQJM72RipEK+OgLvf9WuQQ==",
+      "detour": "st-out"
+    }
+  ],
+  "route": {
+    "final": "ss-out",
+    "auto_detect_interface": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2097
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "naive",
+      "tag": "naive-out",
+      "server": "localhost",
+      "server_port": 19743,
+      "username": "local-test",
+      "password": "naive-password",
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "certificate_path": "testdata/certs/localhost-naive.crt"
+      }
+    }
+  ],
+  "route": {
+    "final": "naive-out",
+    "auto_detect_interface": true
+  }
+}

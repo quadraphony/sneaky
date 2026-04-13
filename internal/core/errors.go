@@ -11,6 +11,7 @@ const (
 	ErrCodeAdapterNotFound ErrorCode = "adapter_not_found"
 	ErrCodeStartFailed     ErrorCode = "start_failed"
 	ErrCodeStopFailed      ErrorCode = "stop_failed"
+	ErrCodeRuntimeExited   ErrorCode = "runtime_exited"
 )
 
 // Error is the structured error surface used across the core contracts.

@@ -33,15 +33,15 @@ These future adapter families are **not implemented** unless explicitly stated o
 | VMess | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
 | Trojan | proxy protocol | verified in coverage phase | verified | local TLS loopback runtime and probe passed |
 | Shadowsocks | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
-| WireGuard via sing-box | proxy / tunnel | real fixture added | partially verified | real keys and outbound fixture validate; runtime probe times out without a local peer |
+| WireGuard via sing-box | proxy / tunnel | migration follow-up only | blocked | legacy outbound fixture is pinned to pre-1.11 behavior; current repo runtime uses sing-box 1.13.7 where WireGuard moved to endpoint configuration |
 | Hysteria2 | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
 | TUIC | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
-| SSH via sing-box | proxy protocol | optional after second batch | blocked | local `sshd` runtime is not installed on this machine |
-| Naive | proxy protocol | deferred | blocked | current local `sing-box 1.8.10` reports unknown outbound type |
-| ShadowTLS | proxy protocol | deferred | partially verified | config type is recognized, but no loopback runtime/probe fixture is implemented yet |
-| AnyTLS | proxy protocol | deferred | blocked | current local `sing-box 1.8.10` reports unknown outbound type |
+| SSH via sing-box | proxy protocol | verified in coverage phase | verified | local user-space `sshd` runtime and probe passed |
+| Naive | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed with bundled sing-box 1.13.7 |
+| ShadowTLS | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed with chained ShadowTLS and Shadowsocks outbounds |
+| AnyTLS | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed with bundled sing-box 1.13.7 |
 | Hysteria | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
-| Tor | outbound capability | deferred | blocked | config parses, but runtime probe failed on this machine |
+| Tor | outbound capability | verified in coverage phase | verified | local bundled Tor executable bootstrapped and probe passed |
 | SOCKS | utility outbound/inbound | utility path only | partially verified | used in runtime probe path, not primary protocol target |
 | HTTP CONNECT | utility outbound/inbound | verified utility path | verified | local loopback runtime and probe passed |
 | DNS outbound | internal capability | out of verification focus | partially verified | utility fixture validates with `sing-box check` |
@@ -75,8 +75,11 @@ This repo verified, in order:
 6. TUIC
 7. Hysteria
 8. HTTP CONNECT
+9. ShadowTLS
+10. AnyTLS
+11. Naive
+12. SSH via sing-box
+13. Tor
 
 The next sing-box candidates remain:
-9. WireGuard via sing-box
-10. ShadowTLS
-11. SSH via sing-box
+14. WireGuard via sing-box migration

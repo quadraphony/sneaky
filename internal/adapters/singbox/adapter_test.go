@@ -3,12 +3,12 @@ package singbox
 import (
 	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"sneaky-core/internal/adapter"
+	"sneaky-core/internal/tools"
 )
 
 const validConfig = `{
@@ -21,7 +21,7 @@ const validConfig = `{
 func requireSingboxBinary(t *testing.T) {
 	t.Helper()
 
-	if _, err := exec.LookPath("sing-box"); err != nil {
+	if _, err := tools.ResolveSingbox(); err != nil {
 		t.Skip("sing-box binary not available")
 	}
 }

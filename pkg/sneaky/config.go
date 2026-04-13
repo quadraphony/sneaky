@@ -4,7 +4,7 @@ import "sneaky-core/internal/config"
 
 type ConfigMetadata struct {
 	Format    string
-	AdapterID string
+	AdapterID AdapterID
 }
 
 func InspectConfigPath(path string) (ConfigMetadata, error) {
@@ -20,7 +20,7 @@ func InspectConfigPath(path string) (ConfigMetadata, error) {
 
 	return ConfigMetadata{
 		Format:    string(metadata.Format),
-		AdapterID: metadata.AdapterID,
+		AdapterID: AdapterID(metadata.AdapterID),
 	}, nil
 }
 
@@ -37,6 +37,6 @@ func InspectConfigBytes(raw []byte) (ConfigMetadata, error) {
 
 	return ConfigMetadata{
 		Format:    string(metadata.Format),
-		AdapterID: metadata.AdapterID,
+		AdapterID: AdapterID(metadata.AdapterID),
 	}, nil
 }

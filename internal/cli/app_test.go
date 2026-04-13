@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"sneaky-core/internal/tools"
 )
 
 const testSingboxConfig = `{
@@ -16,6 +18,17 @@ const testSingboxConfig = `{
   "outbounds": [
     {"type": "direct", "tag": "direct"}
   ]
+}`
+
+const testSingboxChainedConfig = `{
+  "log": {"level": "warn"},
+  "outbounds": [
+    {"type": "shadowtls", "tag": "st-out", "server": "127.0.0.1", "server_port": 443, "tls": {}},
+    {"type": "shadowsocks", "tag": "ss-out", "server": "127.0.0.1", "server_port": 8443, "method": "2022-blake3-aes-128-gcm", "password": "gQJM72RipEK+OgLvf9WuQQ==", "detour": "st-out"}
+  ],
+  "route": {
+    "final": "ss-out"
+  }
 }`
 
 func TestAppValidateAndVersion(t *testing.T) {
@@ -44,7 +57,7 @@ func TestAppValidateAndVersion(t *testing.T) {
 }
 
 func TestCLIStartStatusStop(t *testing.T) {
-	if _, err := exec.LookPath("sing-box"); err != nil {
+	if _, err := tools.ResolveSingbox(); err != nil {
 		t.Skip("sing-box binary not available")
 	}
 
@@ -137,12 +150,39 @@ func TestPrepareSingboxProbeConfig(t *testing.T) {
 	}
 }
 
+func TestPrepareSingboxProbeConfigPreservesExplicitFinalRoute(t *testing.T) {
+	path := writeCustomTestConfig(t, testSingboxChainedConfig)
+
+	raw, _, err := prepareSingboxProbeConfig(path)
+	if err != nil {
+		t.Fatalf("prepare probe config: %v", err)
+	}
+
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatalf("decode probe config: %v", err)
+	}
+
+	route, ok := doc["route"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected route object, got %#v", doc["route"])
+	}
+	if got := route["final"]; got != "ss-out" {
+		t.Fatalf("expected preserved route final ss-out, got %#v", got)
+	}
+}
+
 func writeTestConfig(t *testing.T) string {
+	t.Helper()
+	return writeCustomTestConfig(t, testSingboxConfig)
+}
+
+func writeCustomTestConfig(t *testing.T, contents string) string {
 	t.Helper()
 
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.json")
-	if err := os.WriteFile(path, []byte(testSingboxConfig), 0o600); err != nil {
+	if err := os.WriteFile(path, []byte(contents), 0o600); err != nil {
 		t.Fatalf("write config: %v", err)
 	}
 	return path

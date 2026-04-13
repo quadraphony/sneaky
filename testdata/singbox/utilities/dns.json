@@ -3,14 +3,14 @@
     "servers": [
       {
         "tag": "local",
-        "address": "local"
+        "type": "local"
       }
     ]
   },
   "outbounds": [
     {
-      "type": "dns",
-      "tag": "dns-out"
+      "type": "direct",
+      "tag": "direct"
     }
   ]
 }

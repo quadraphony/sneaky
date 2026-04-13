@@ -14,9 +14,9 @@ import (
 	"syscall"
 	"time"
 
+	"golang.org/x/net/proxy"
 	"sneaky-core/internal/config"
 	"sneaky-core/pkg/sneaky"
-	"golang.org/x/net/proxy"
 )
 
 const version = "dev"
@@ -93,7 +93,7 @@ func (a *App) runStart(args []string) int {
 
 	manager := sneaky.New()
 	if err := manager.Start(context.Background(), sneaky.StartRequest{
-		AdapterID:  metadata.AdapterID,
+		AdapterID:  sneaky.AdapterID(metadata.AdapterID),
 		ConfigPath: args[0],
 	}); err != nil {
 		fmt.Fprintf(a.Stderr, "start failed: %v\n", err)
@@ -251,6 +251,11 @@ func (a *App) runProbe(args []string) int {
 		_ = manager.Stop(stopCtx)
 	}()
 
+	if err := waitForProxyReady(proxyPort, 60*time.Second); err != nil {
+		fmt.Fprintf(a.Stderr, "probe failed: %v\n", err)
+		return 1
+	}
+
 	statusCode, bodyBytes, err := probeHTTP(targetURL, proxyPort)
 	if err != nil {
 		fmt.Fprintf(a.Stderr, "probe failed: %v\n", err)
@@ -269,7 +274,7 @@ func probeRequest(configPath string, metadata config.Metadata) (sneaky.StartRequ
 			return sneaky.StartRequest{}, 0, noop, err
 		}
 		return sneaky.StartRequest{
-			AdapterID: metadata.AdapterID,
+			AdapterID: sneaky.AdapterID(metadata.AdapterID),
 			RawConfig: raw,
 		}, port, noop, nil
 	case config.AdapterSSH:
@@ -278,7 +283,7 @@ func probeRequest(configPath string, metadata config.Metadata) (sneaky.StartRequ
 			return sneaky.StartRequest{}, 0, noop, err
 		}
 		return sneaky.StartRequest{
-			AdapterID:  metadata.AdapterID,
+			AdapterID:  sneaky.AdapterID(metadata.AdapterID),
 			ConfigPath: configPath,
 		}, port, noop, nil
 	default:
@@ -323,6 +328,22 @@ func probeHTTP(targetURL string, proxyPort int) (int, int, error) {
 	}
 
 	return resp.StatusCode, len(body), nil
+}
+
+func waitForProxyReady(proxyPort int, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	address := net.JoinHostPort("127.0.0.1", strconv.Itoa(proxyPort))
+
+	for time.Now().Before(deadline) {
+		conn, err := net.DialTimeout("tcp", address, 200*time.Millisecond)
+		if err == nil {
+			_ = conn.Close()
+			return nil
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	return fmt.Errorf("proxy listener on %s was not ready within %s", address, timeout)
 }
 
 func prepareSingboxProbeConfig(path string) ([]byte, int, error) {
@@ -370,7 +391,9 @@ func prepareSingboxProbeConfig(path string) ([]byte, int, error) {
 	if route == nil {
 		route = map[string]any{}
 	}
-	route["final"] = tag
+	if routeTag, _ := route["final"].(string); routeTag == "" {
+		route["final"] = tag
+	}
 	doc["route"] = route
 
 	updated, err := json.MarshalIndent(doc, "", "  ")

@@ -12,33 +12,28 @@ This file is the current handoff point for the next development session.
 - TUIC
 - Hysteria
 - HTTP CONNECT
+- ShadowTLS
+- AnyTLS
+- Naive
+- SSH via sing-box
+- Tor
 
-## Current Partial Verification
+## Sing-box Phase Status
+
+- closed
+- coverage claims are complete for the current bundled runtime
+- do not expand sing-box protocol scope further unless a new product requirement appears
+
+## Deferred Migration Item
 
 - WireGuard via sing-box
-
-Reason:
-- real key material exists
-- real outbound fixture exists
-- validation passes
-- runtime probe reaches startup but fails traffic proof because this machine does not currently provide a real WireGuard peer path for sing-box 1.8.10
-
-## Current Blocked Items
-
-- SSH via sing-box
-  - blocked because local `sshd` runtime is not installed
-- Naive
-  - blocked because local `sing-box 1.8.10` reports `unknown outbound type: naive`
-- AnyTLS
-  - blocked because local `sing-box 1.8.10` reports `unknown outbound type: anytls`
-- Tor
-  - blocked because runtime probe failed on this machine
+  - the historical fixture is kept for evidence, but it targets the pre-1.11 outbound schema
+  - the repo now uses bundled `sing-box 1.13.7`, where WireGuard moved to endpoint configuration
+  - deferred unless current product scope still needs sing-box-managed WireGuard
+  - if revived later, add a new endpoint-based fixture instead of reviving the old outbound path
 
 ## Current Partial Utility Coverage
 
-- ShadowTLS
-  - config type is recognized
-  - no runtime/probe fixture implemented yet
 - DNS outbound
   - validation fixture exists
 - Selector
@@ -55,21 +50,21 @@ Reason:
 ## Required Next Order
 
 1. ShadowTLS
-   - create real local fixture if possible
-   - validate config detection and routing
-   - run real runtime/probe verification
-   - promote only if runtime proof succeeds
+   - already verified
+   - do not reopen unless a regression appears
 
-2. Reassess Naive and AnyTLS
-   - first determine whether the local sing-box runtime must be upgraded
-   - do not add fixtures until runtime support is confirmed
+2. Phase 1 hardening
+   - start the next hardening pass on manager reliability, startup and shutdown behavior, and CLI stability
 
-3. Reassess SSH via sing-box
-   - only if a real `sshd` test path is available
+3. Final public API
+   - lock the exported package surface for external callers and future bindings
 
-4. Decide whether to close the sing-box coverage phase
-   - if remaining rows are environment-blocked or version-blocked, stop expanding claims
-   - shift to core hardening and CLI polish
+4. SSH adapter family
+   - continue the dedicated SSH adapter path as a first-class family beyond sing-box SSH outbound coverage
+
+5. WireGuard via sing-box
+   - deferred migration item
+   - only revisit if current product scope still requires it
 
 ## Evidence Sources
 

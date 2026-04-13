@@ -31,6 +31,22 @@ func TestStartProcessAndStop(t *testing.T) {
 	}
 }
 
+func TestStateTransitionGuards(t *testing.T) {
+	if !StateStopped.CanStart() {
+		t.Fatal("expected stopped state to allow start")
+	}
+	if StateStarting.CanStart() || StateRunning.CanStart() || StateStopping.CanStart() {
+		t.Fatal("expected only stopped state to allow start")
+	}
+
+	if !StateRunning.CanStop() {
+		t.Fatal("expected running state to allow stop")
+	}
+	if StateStopped.CanStop() || StateStarting.CanStop() || StateStopping.CanStop() {
+		t.Fatal("expected only running state to allow stop")
+	}
+}
+
 func writeProcessScript(t *testing.T) string {
 	t.Helper()
 

@@ -17,3 +17,11 @@ func (s State) String() string {
 func (s State) IsActive() bool {
 	return s == StateStarting || s == StateRunning || s == StateStopping
 }
+
+func (s State) CanStart() bool {
+	return s == StateStopped
+}
+
+func (s State) CanStop() bool {
+	return s == StateRunning
+}

@@ -1,6 +1,6 @@
 # WireGuard via sing-box
 
-This directory contains the real local WireGuard fixture used for sing-box coverage verification.
+This directory contains the historical WireGuard fixture used for the older sing-box outbound model.
 
 ## Key generation approach
 
@@ -27,25 +27,24 @@ The checked-in client fixture uses:
 - local address `10.7.0.2/32`
 - endpoint `127.0.0.1:19100`
 
-## Verification status
+## Current status
 
-Current label: `partially verified`
+Current label: `blocked`
 
-What is real and completed:
+What remains useful:
 - key material is real
-- config fixture is real
-- config detection works through the sing-box adapter
-- `sneakycli validate` passes
-- `sneakycli probe` reaches runtime startup and fails at traffic stage instead of config stage
+- fixture history is real
+- the original partial-verification evidence remains documented
 
-What is still blocked:
-- this local `sing-box 1.8.10` build has no WireGuard inbound
-- passwordless sudo is unavailable, so a privileged kernel/userspace peer could not be provisioned on this machine
-- a full local peer loopback path is therefore incomplete in the current environment
+What is blocked now:
+- the repo now uses bundled `sing-box 1.13.7`
+- WireGuard moved to endpoint configuration in sing-box 1.11.0+
+- this checked-in file still uses the older outbound-oriented shape and is retained only as migration evidence
 
 ## Promotion rule
 
 Do not mark WireGuard as `verified` until:
-1. a real peer is provisioned
-2. the runtime probe succeeds
-3. logs are captured for the successful path
+1. an endpoint-based fixture is added for the current runtime
+2. a real peer is provisioned
+3. the runtime probe succeeds
+4. logs are captured for the successful path

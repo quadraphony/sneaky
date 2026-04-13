@@ -105,7 +105,11 @@ func validateSSH(input Input) error {
 		Port                  int    `json:"port"`
 		LocalSOCKSPort        int    `json:"local_socks_port"`
 		IdentityFile          string `json:"identity_file"`
+		KnownHostsFile        string `json:"known_hosts_file"`
 		StrictHostKeyChecking string `json:"strict_host_key_checking"`
+		ConnectTimeoutSeconds int    `json:"connect_timeout_seconds"`
+		ServerAliveInterval   int    `json:"server_alive_interval_seconds"`
+		ServerAliveCountMax   int    `json:"server_alive_count_max"`
 	}
 
 	var tunnel tunnelConfig
@@ -129,6 +133,15 @@ func validateSSH(input Input) error {
 	}
 	if tunnel.Port < 0 || tunnel.Port > 65535 {
 		return &ValidationError{Code: ErrCodeMissingRequiredField, Source: input.Source, Message: "ssh_tunnel.port must be between 0 and 65535"}
+	}
+	if tunnel.ConnectTimeoutSeconds < 0 {
+		return &ValidationError{Code: ErrCodeMissingRequiredField, Source: input.Source, Message: "ssh_tunnel.connect_timeout_seconds must be greater than or equal to 0"}
+	}
+	if tunnel.ServerAliveInterval < 0 {
+		return &ValidationError{Code: ErrCodeMissingRequiredField, Source: input.Source, Message: "ssh_tunnel.server_alive_interval_seconds must be greater than or equal to 0"}
+	}
+	if tunnel.ServerAliveCountMax < 0 {
+		return &ValidationError{Code: ErrCodeMissingRequiredField, Source: input.Source, Message: "ssh_tunnel.server_alive_count_max must be greater than or equal to 0"}
 	}
 
 	return nil

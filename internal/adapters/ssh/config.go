@@ -16,7 +16,11 @@ type tunnelConfig struct {
 	Port                  int    `json:"port"`
 	LocalSOCKSPort        int    `json:"local_socks_port"`
 	IdentityFile          string `json:"identity_file"`
+	KnownHostsFile        string `json:"known_hosts_file"`
 	StrictHostKeyChecking string `json:"strict_host_key_checking"`
+	ConnectTimeoutSeconds int    `json:"connect_timeout_seconds"`
+	ServerAliveInterval   int    `json:"server_alive_interval_seconds"`
+	ServerAliveCountMax   int    `json:"server_alive_count_max"`
 }
 
 func loadTunnelConfig(req adapter.StartRequest) (tunnelConfig, error) {
@@ -62,6 +66,15 @@ func loadTunnelConfig(req adapter.StartRequest) (tunnelConfig, error) {
 	if parsed.SSHTunnel.StrictHostKeyChecking == "" {
 		parsed.SSHTunnel.StrictHostKeyChecking = "accept-new"
 	}
+	if parsed.SSHTunnel.ConnectTimeoutSeconds == 0 {
+		parsed.SSHTunnel.ConnectTimeoutSeconds = 10
+	}
+	if parsed.SSHTunnel.ServerAliveInterval == 0 {
+		parsed.SSHTunnel.ServerAliveInterval = 30
+	}
+	if parsed.SSHTunnel.ServerAliveCountMax == 0 {
+		parsed.SSHTunnel.ServerAliveCountMax = 3
+	}
 	if parsed.SSHTunnel.IdentityFile != "" {
 		absPath, err := filepath.Abs(parsed.SSHTunnel.IdentityFile)
 		if err != nil {
@@ -71,6 +84,16 @@ func loadTunnelConfig(req adapter.StartRequest) (tunnelConfig, error) {
 			return tunnelConfig{}, fmt.Errorf("stat identity_file: %w", err)
 		}
 		parsed.SSHTunnel.IdentityFile = absPath
+	}
+	if parsed.SSHTunnel.KnownHostsFile != "" {
+		absPath, err := filepath.Abs(parsed.SSHTunnel.KnownHostsFile)
+		if err != nil {
+			return tunnelConfig{}, fmt.Errorf("resolve known_hosts_file: %w", err)
+		}
+		if _, err := os.Stat(absPath); err != nil {
+			return tunnelConfig{}, fmt.Errorf("stat known_hosts_file: %w", err)
+		}
+		parsed.SSHTunnel.KnownHostsFile = absPath
 	}
 
 	return parsed.SSHTunnel, nil

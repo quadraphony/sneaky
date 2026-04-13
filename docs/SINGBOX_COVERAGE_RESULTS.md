@@ -124,44 +124,87 @@ For each protocol:
   - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
 - Final label: `verified`
 
+### ShadowTLS
+- Server fixture: `testdata/singbox/shadowtls/server.json`
+- Client fixture: `testdata/singbox/shadowtls/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/shadowtls/server.json`
+  - `sing-box check -c testdata/singbox/shadowtls/client.json`
+  - `go run ./cmd/sneakycli validate testdata/singbox/shadowtls/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/shadowtls/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/shadowtls/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - server logs showed `inbound/shadowsocks[ss-in]: inbound connection to example.com:443`
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### AnyTLS
+- Server fixture: `testdata/singbox/anytls/server.json`
+- Client fixture: `testdata/singbox/anytls/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/anytls/server.json`
+  - `sing-box check -c testdata/singbox/anytls/client.json`
+  - `go run ./cmd/sneakycli validate testdata/singbox/anytls/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/anytls/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/anytls/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - server logs showed `inbound/anytls[anytls-in]: [local-test] inbound connection to example.com:443`
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### Naive
+- Server fixture: `testdata/singbox/naive/server.json`
+- Client fixture: `testdata/singbox/naive/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/naive/server.json`
+  - `sing-box check -c testdata/singbox/naive/client.json`
+  - `go run ./cmd/sneakycli validate testdata/singbox/naive/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/naive/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/naive/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - server logs showed `inbound/naive[naive-in]: [local-test] inbound connection to example.com:443`
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### SSH via sing-box
+- Client fixture: `testdata/singbox/ssh/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/ssh/client.json`
+  - `go run ./cmd/sneakycli validate testdata/singbox/ssh/client.json`
+- Runtime command:
+  - start local user-space `sshd` with repo test keys on `127.0.0.1:22322`
+  - `go run ./cmd/sneakycli probe testdata/singbox/ssh/client.json https://example.com`
+- Observed result:
+  - local `sshd` accepted the repo test key
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### Tor
+- Client fixture: `testdata/singbox/tor/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/tor/client.json`
+  - `go run ./cmd/sneakycli validate testdata/singbox/tor/client.json`
+- Runtime command:
+  - `go run ./cmd/sneakycli probe testdata/singbox/tor/client.json https://example.com`
+- Observed result:
+  - local bundled Tor executable bootstrapped to 100%
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
 ## Blocked Rows
 
 ### WireGuard
 - Fixture:
   - `testdata/singbox/wireguard/client.json`
-- Key generation commands:
-  - `sing-box generate wg-keypair`
-  - `sing-box generate wg-keypair`
-- Validation commands:
-  - `sing-box check -c testdata/singbox/wireguard/client.json`
-  - `go run ./cmd/sneakycli validate testdata/singbox/wireguard/client.json`
-- Runtime command:
-  - `go run ./cmd/sneakycli probe testdata/singbox/wireguard/client.json https://example.com`
+- Historical validation context:
+  - originally checked under local `sing-box 1.8.10`
 - Observed result:
-  - validation passed
-  - `sneakycli probe` failed with `net/http: TLS handshake timeout`
-  - local `sing-box 1.8.10` has no WireGuard inbound, so a pure sing-box loopback peer is unavailable here
-- Final label: `partially verified`
-
-### Naive
-- Validation command:
-  - `sing-box check -c <naive-fixture>`
-- Observed result:
-  - `unknown outbound type: naive`
-- Final label: `blocked`
-
-### AnyTLS
-- Validation command:
-  - `sing-box check -c <anytls-fixture>`
-- Observed result:
-  - `unknown outbound type: anytls`
-- Final label: `blocked`
-
-### Tor
-- Validation command:
-  - `sing-box check -c <tor-fixture>`
-- Runtime command:
-  - `go run ./cmd/sneakycli probe <tor-fixture> https://example.com`
-- Observed result:
-  - probe failed with local SOCKS connection refusal on this machine
+  - the legacy fixture no longer matches the repo's bundled `sing-box 1.13.7` runtime because WireGuard moved to endpoint configuration in sing-box 1.11.0+
+  - the old partial-verification evidence is retained in `testdata/singbox/wireguard/README.md`
 - Final label: `blocked`

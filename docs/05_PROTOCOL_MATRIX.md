@@ -46,7 +46,11 @@ The supported config model is JSON with a top-level `ssh_tunnel` object:
 - `port` integer, optional, defaults to `22`
 - `local_socks_port` integer, required
 - `identity_file` string, optional
+- `known_hosts_file` string, optional
 - `strict_host_key_checking` string, optional, defaults to `accept-new`
+- `connect_timeout_seconds` integer, optional, defaults to `10`
+- `server_alive_interval_seconds` integer, optional, defaults to `30`
+- `server_alive_count_max` integer, optional, defaults to `3`
 
 The following SSH forms remain out of scope until separately specified:
 - SSH over TLS

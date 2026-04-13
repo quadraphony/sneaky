@@ -37,9 +37,15 @@ func (a *Adapter) ValidateConfig(req adapter.StartRequest) error {
 		"-G",
 		"-p", strconv.Itoa(tunnel.Port),
 		"-o", "StrictHostKeyChecking=" + tunnel.StrictHostKeyChecking,
+		"-o", "ConnectTimeout=" + strconv.Itoa(tunnel.ConnectTimeoutSeconds),
+		"-o", "ServerAliveInterval=" + strconv.Itoa(tunnel.ServerAliveInterval),
+		"-o", "ServerAliveCountMax=" + strconv.Itoa(tunnel.ServerAliveCountMax),
 	}
 	if tunnel.IdentityFile != "" {
 		checkArgs = append(checkArgs, "-i", tunnel.IdentityFile)
+	}
+	if tunnel.KnownHostsFile != "" {
+		checkArgs = append(checkArgs, "-o", "UserKnownHostsFile="+tunnel.KnownHostsFile)
 	}
 	checkArgs = append(checkArgs, tunnel.User+"@"+tunnel.Host)
 
@@ -62,10 +68,16 @@ func (a *Adapter) Start(ctx context.Context, req adapter.StartRequest) (runtime.
 		"-p", strconv.Itoa(tunnel.Port),
 		"-o", "ExitOnForwardFailure=yes",
 		"-o", "StrictHostKeyChecking=" + tunnel.StrictHostKeyChecking,
+		"-o", "ConnectTimeout=" + strconv.Itoa(tunnel.ConnectTimeoutSeconds),
+		"-o", "ServerAliveInterval=" + strconv.Itoa(tunnel.ServerAliveInterval),
+		"-o", "ServerAliveCountMax=" + strconv.Itoa(tunnel.ServerAliveCountMax),
 		tunnel.User + "@" + tunnel.Host,
 	}
 	if tunnel.IdentityFile != "" {
 		args = append(args[:len(args)-1], append([]string{"-i", tunnel.IdentityFile}, args[len(args)-1])...)
+	}
+	if tunnel.KnownHostsFile != "" {
+		args = append(args[:len(args)-1], append([]string{"-o", "UserKnownHostsFile=" + tunnel.KnownHostsFile}, args[len(args)-1])...)
 	}
 
 	cmd := exec.CommandContext(ctx, a.binary(), args...)

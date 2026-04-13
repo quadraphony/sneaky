@@ -13,7 +13,7 @@ func TestInspectConfigBytes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("inspect config bytes: %v", err)
 	}
-	if metadata.AdapterID != "ssh" {
+	if metadata.AdapterID != AdapterIDSSH {
 		t.Fatalf("expected ssh adapter, got %q", metadata.AdapterID)
 	}
 	if metadata.Format != "json" {

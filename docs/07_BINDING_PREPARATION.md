@@ -15,6 +15,8 @@ It currently exposes:
 - structured log access
 - manager-level stats access
 - config inspection helpers for file and raw bytes
+- typed public adapter identifiers
+- explicit public lifecycle state helpers
 
 Bridge layers must not import `internal/*` packages directly.
 
@@ -24,6 +26,7 @@ Bridge layers must not import `internal/*` packages directly.
 - public types are plain Go values without CLI dependencies
 - config inspection is available without constructing CLI commands
 - adapter registration remains internal so mobile bridges do not manage engine wiring
+- adapter selection does not require raw magic strings in bridge code
 
 ## CLI Boundary
 

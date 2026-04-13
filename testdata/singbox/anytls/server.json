@@ -1,0 +1,31 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "anytls",
+      "tag": "anytls-in",
+      "listen": "127.0.0.1",
+      "listen_port": 19643,
+      "users": [
+        {
+          "name": "local-test",
+          "password": "anytls-password"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "certificate_path": "testdata/certs/localhost.crt",
+        "key_path": "testdata/certs/localhost.key"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}

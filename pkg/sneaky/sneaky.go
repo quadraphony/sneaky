@@ -18,6 +18,13 @@ type Manager struct {
 	core *core.Manager
 }
 
+type AdapterID string
+
+const (
+	AdapterIDSingbox AdapterID = "singbox"
+	AdapterIDSSH     AdapterID = "ssh"
+)
+
 type State string
 
 const (
@@ -29,7 +36,7 @@ const (
 
 type Snapshot struct {
 	State     State
-	AdapterID string
+	AdapterID AdapterID
 	StartedAt time.Time
 	Active    bool
 	LastError error
@@ -45,7 +52,7 @@ type LogEntry struct {
 
 type StatsSnapshot struct {
 	State            State
-	AdapterID        string
+	AdapterID        AdapterID
 	StartedAt        time.Time
 	LastTransitionAt time.Time
 	Uptime           time.Duration
@@ -55,7 +62,7 @@ type StatsSnapshot struct {
 }
 
 type StartRequest struct {
-	AdapterID  string
+	AdapterID  AdapterID
 	ConfigPath string
 	RawConfig  []byte
 }
@@ -70,9 +77,25 @@ func New() *Manager {
 	}
 }
 
+func (s State) String() string {
+	return string(s)
+}
+
+func (s State) IsActive() bool {
+	return runtime.State(s).IsActive()
+}
+
+func (s State) CanStart() bool {
+	return runtime.State(s).CanStart()
+}
+
+func (s State) CanStop() bool {
+	return runtime.State(s).CanStop()
+}
+
 func (m *Manager) Start(ctx context.Context, req StartRequest) error {
 	return m.core.Start(ctx, core.StartRequest{
-		AdapterID: req.AdapterID,
+		AdapterID: string(req.AdapterID),
 		Config: adapter.StartRequest{
 			ConfigPath: req.ConfigPath,
 			RawConfig:  req.RawConfig,
@@ -88,7 +111,7 @@ func (m *Manager) Snapshot() Snapshot {
 	snap := m.core.Snapshot()
 	return Snapshot{
 		State:     State(snap.State),
-		AdapterID: snap.AdapterID,
+		AdapterID: AdapterID(snap.AdapterID),
 		StartedAt: snap.StartedAt,
 		Active:    snap.Active,
 		LastError: snap.LastError,
@@ -126,7 +149,7 @@ func fromLogEntry(entry logx.Entry) LogEntry {
 func fromStatsSnapshot(snapshot stats.Snapshot) StatsSnapshot {
 	return StatsSnapshot{
 		State:            State(snapshot.State),
-		AdapterID:        snapshot.AdapterID,
+		AdapterID:        AdapterID(snapshot.AdapterID),
 		StartedAt:        snapshot.StartedAt,
 		LastTransitionAt: snapshot.LastTransitionAt,
 		Uptime:           snapshot.Uptime,

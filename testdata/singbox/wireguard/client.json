@@ -14,14 +14,21 @@
     {
       "type": "wireguard",
       "tag": "wg-out",
-      "server": "127.0.0.1",
-      "server_port": 19100,
       "system_interface": false,
       "local_address": [
         "10.7.0.2/32"
       ],
       "private_key": "cIwzFxjrEqo97GxhZJJTH2gWpbCaTkaheXdbwKVMMH0=",
-      "peer_public_key": "KCOS4+I08yP0koDSMHyI0siOyZqPp4pUByaKJ8izdDw=",
+      "peers": [
+        {
+          "server": "127.0.0.1",
+          "server_port": 19100,
+          "public_key": "KCOS4+I08yP0koDSMHyI0siOyZqPp4pUByaKJ8izdDw=",
+          "allowed_ips": [
+            "0.0.0.0/0"
+          ]
+        }
+      ],
       "reserved": [0, 0, 0]
     }
   ],
