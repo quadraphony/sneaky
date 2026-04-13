@@ -19,7 +19,7 @@ Support status must be one of:
 |---|---|---:|---|
 | sing-box based configs | active foundation target | yes | first real adapter path |
 | OpenVPN | planned | not yet finalized | only after adapter architecture stabilizes |
-| SSH-based tunneling | planned | not yet finalized | must be specified precisely before implementation |
+| SSH direct SOCKS tunnel | active | yes | implemented as OpenSSH dynamic forwarding via `ssh -N -D` |
 | WireGuard | planned | not yet finalized | do not promise until adapter path is selected |
 | TrustTunnel | under evaluation | no | do not implement until the source and integration path are fully locked |
 | Hiddify-based path | under evaluation | no | only adopt if the integration approach is explicitly approved |
@@ -35,16 +35,22 @@ Before any protocol moves from `planned` or `under evaluation` to `active`, the 
 
 ## SSH Rule
 
-“SSH-based support” is too broad unless broken down precisely.
+Only one SSH form is in scope now:
+- direct SSH tunnel with local SOCKS forwarding using OpenSSH `ssh -N -D`
 
-Before implementation, define the exact supported forms, for example:
-- direct SSH tunnel
+The supported config model is JSON with a top-level `ssh_tunnel` object:
+- `host` string, required
+- `user` string, required
+- `port` integer, optional, defaults to `22`
+- `local_socks_port` integer, required
+- `identity_file` string, optional
+- `strict_host_key_checking` string, optional, defaults to `accept-new`
+
+The following SSH forms remain out of scope until separately specified:
 - SSH over TLS
 - SSH over WebSocket
-- payload-based HTTP header injection
-- DNS-based transport
-
-Do not implement “SSH support” as a vague bucket.
+- payload/header injection modes
+- DNS-based transports
 
 ## OpenVPN Rule
 

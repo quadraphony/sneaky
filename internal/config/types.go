@@ -9,6 +9,7 @@ const (
 )
 
 const AdapterSingbox = "singbox"
+const AdapterSSH = "ssh"
 
 type Input struct {
 	Source string

@@ -12,6 +12,10 @@ var singboxHintKeys = map[string]struct{}{
 	"route":        {},
 }
 
+var sshHintKeys = map[string]struct{}{
+	"ssh_tunnel": {},
+}
+
 func Detect(input Input) (Metadata, error) {
 	object, err := decodeJSONObject(input)
 	if err != nil {
@@ -20,13 +24,25 @@ func Detect(input Input) (Metadata, error) {
 
 	keys := make([]string, 0, len(object))
 	singboxHints := 0
+	sshHints := 0
 	for key := range object {
 		keys = append(keys, key)
 		if _, ok := singboxHintKeys[key]; ok {
 			singboxHints++
 		}
+		if _, ok := sshHintKeys[key]; ok {
+			sshHints++
+		}
 	}
 	sort.Strings(keys)
+
+	if _, ok := object["ssh_tunnel"]; ok {
+		return Metadata{
+			Format:       FormatJSON,
+			AdapterID:    AdapterSSH,
+			TopLevelKeys: keys,
+		}, nil
+	}
 
 	if _, ok := object["outbounds"]; ok {
 		return Metadata{
@@ -41,6 +57,14 @@ func Detect(input Input) (Metadata, error) {
 			Code:    ErrCodeAmbiguousFormat,
 			Source:  input.Source,
 			Message: "config has sing-box-like keys but no definitive sing-box outbound definition",
+		}
+	}
+
+	if sshHints > 0 {
+		return Metadata{}, &ValidationError{
+			Code:    ErrCodeAmbiguousFormat,
+			Source:  input.Source,
+			Message: "config has ssh-tunnel-like keys but no definitive ssh_tunnel object",
 		}
 	}
 

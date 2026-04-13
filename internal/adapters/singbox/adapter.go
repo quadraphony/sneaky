@@ -48,7 +48,7 @@ func (a *Adapter) Start(ctx context.Context, req adapter.StartRequest) (runtime.
 	}
 
 	cmd := exec.CommandContext(ctx, a.binary(), "run", "-c", resolvedPath, "--disable-color")
-	handle, err := startProcess(cmd, cleanup)
+	handle, err := runtime.StartProcess(cmd, cleanup)
 	if err != nil {
 		cleanup()
 		return nil, fmt.Errorf("start sing-box process: %w", err)

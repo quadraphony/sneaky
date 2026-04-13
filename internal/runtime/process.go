@@ -1,4 +1,4 @@
-package singbox
+package runtime
 
 import (
 	"bytes"
@@ -9,31 +9,29 @@ import (
 	"sync"
 	"syscall"
 	"time"
-
-	"sneaky-core/internal/runtime"
 )
 
-type processHandle struct {
+type ProcessHandle struct {
 	mu      sync.Mutex
 	cmd     *exec.Cmd
 	cleanup func()
 	done    chan error
 	once    sync.Once
-	state   runtime.State
+	state   State
 	waitErr error
 }
 
-func startProcess(cmd *exec.Cmd, cleanup func()) (*processHandle, error) {
+func StartProcess(cmd *exec.Cmd, cleanup func()) (*ProcessHandle, error) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	handle := &processHandle{
+	handle := &ProcessHandle{
 		cmd:     cmd,
 		cleanup: cleanup,
 		done:    make(chan error, 1),
-		state:   runtime.StateStarting,
+		state:   StateStarting,
 	}
 
 	if err := cmd.Start(); err != nil {
@@ -44,7 +42,7 @@ func startProcess(cmd *exec.Cmd, cleanup func()) (*processHandle, error) {
 		err := cmd.Wait()
 		handle.mu.Lock()
 		handle.waitErr = err
-		handle.state = runtime.StateStopped
+		handle.state = StateStopped
 		handle.mu.Unlock()
 		handle.finalize()
 		handle.done <- err
@@ -55,42 +53,42 @@ func startProcess(cmd *exec.Cmd, cleanup func()) (*processHandle, error) {
 		if err != nil {
 			detail := bytes.TrimSpace(append(stdout.Bytes(), stderr.Bytes()...))
 			if len(detail) > 0 {
-				return nil, fmt.Errorf("sing-box exited during startup: %s", detail)
+				return nil, fmt.Errorf("process exited during startup: %s", detail)
 			}
-			return nil, fmt.Errorf("sing-box exited during startup: %w", err)
+			return nil, fmt.Errorf("process exited during startup: %w", err)
 		}
-		return nil, fmt.Errorf("sing-box exited during startup without error")
+		return nil, fmt.Errorf("process exited during startup without error")
 	case <-time.After(250 * time.Millisecond):
 		handle.mu.Lock()
-		handle.state = runtime.StateRunning
+		handle.state = StateRunning
 		handle.mu.Unlock()
 		return handle, nil
 	}
 }
 
-func (h *processHandle) Stop(ctx context.Context) error {
+func (h *ProcessHandle) Stop(ctx context.Context) error {
 	h.mu.Lock()
-	if h.state == runtime.StateStopped {
+	if h.state == StateStopped {
 		err := h.waitErr
 		h.mu.Unlock()
 		return err
 	}
-	h.state = runtime.StateStopping
+	h.state = StateStopping
 	process := h.cmd.Process
 	h.mu.Unlock()
 
 	if process == nil {
-		return fmt.Errorf("sing-box process is not available")
+		return fmt.Errorf("process is not available")
 	}
 
 	if err := process.Signal(syscall.SIGTERM); err != nil && err != os.ErrProcessDone {
-		return fmt.Errorf("signal sing-box process: %w", err)
+		return fmt.Errorf("signal process: %w", err)
 	}
 
 	select {
 	case err := <-h.done:
-		if err != nil && !isExpectedExit(err) {
-			return fmt.Errorf("wait for sing-box shutdown: %w", err)
+		if err != nil && !IsExpectedExit(err) {
+			return fmt.Errorf("wait for process shutdown: %w", err)
 		}
 		return nil
 	case <-ctx.Done():
@@ -100,13 +98,13 @@ func (h *processHandle) Stop(ctx context.Context) error {
 	}
 }
 
-func (h *processHandle) State() runtime.State {
+func (h *ProcessHandle) State() State {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	return h.state
 }
 
-func (h *processHandle) finalize() {
+func (h *ProcessHandle) finalize() {
 	h.once.Do(func() {
 		if h.cleanup != nil {
 			h.cleanup()
@@ -114,7 +112,7 @@ func (h *processHandle) finalize() {
 	})
 }
 
-func isExpectedExit(err error) bool {
+func IsExpectedExit(err error) bool {
 	exitErr, ok := err.(*exec.ExitError)
 	if !ok {
 		return false

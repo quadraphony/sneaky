@@ -6,6 +6,7 @@ import (
 
 	"sneaky-core/internal/adapter"
 	"sneaky-core/internal/adapters/singbox"
+	sshadapter "sneaky-core/internal/adapters/ssh"
 	"sneaky-core/internal/core"
 	"sneaky-core/internal/logx"
 	"sneaky-core/internal/runtime"
@@ -62,6 +63,7 @@ type StartRequest struct {
 func New() *Manager {
 	registry := adapter.NewRegistry()
 	registry.MustRegister(singbox.New(""))
+	registry.MustRegister(sshadapter.New(""))
 
 	return &Manager{
 		core: core.NewManager(registry),

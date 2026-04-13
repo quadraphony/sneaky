@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"os"
+
+	"sneaky-core/internal/cli"
+)
 
 func main() {
-	fmt.Println("Sneaky CLI initialized")
+	app := cli.New(os.Stdout, os.Stderr)
+	os.Exit(app.Run(os.Args[1:]))
 }

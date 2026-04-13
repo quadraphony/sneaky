@@ -29,19 +29,25 @@ sneaky-core/
 │   │   ├── parser.go
 │   │   ├── validator.go
 │   │   └── types.go
+│   ├── cli/
+│   │   ├── app.go
+│   │   └── state.go
 │   ├── adapter/
 │   │   ├── adapter.go
 │   │   ├── registry.go
 │   │   └── capabilities.go
 │   ├── adapters/
-│   │   └── singbox/
+│   │   ├── singbox/
 │   │       ├── adapter.go
-│   │       ├── runtime.go
 │   │       └── validator.go
+│   │   └── ssh/
+│   │       ├── adapter.go
+│   │       └── config.go
 │   ├── runtime/
 │   │   ├── session.go
 │   │   ├── lifecycle.go
-│   │   └── context.go
+│   │   ├── context.go
+│   │   └── process.go
 │   ├── stats/
 │   │   ├── stats.go
 │   │   └── snapshot.go

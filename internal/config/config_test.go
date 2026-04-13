@@ -126,3 +126,24 @@ func TestParseRejectsEmptyInput(t *testing.T) {
 		t.Fatalf("expected empty input error, got %v", err)
 	}
 }
+
+func TestDetectAndValidateSSHConfig(t *testing.T) {
+	input, err := Parse([]byte(`{
+		"ssh_tunnel": {
+			"host": "example.com",
+			"user": "demo",
+			"local_socks_port": 1080
+		}
+	}`), "inline")
+	if err != nil {
+		t.Fatalf("parse input: %v", err)
+	}
+
+	metadata, err := DetectAndValidate(input)
+	if err != nil {
+		t.Fatalf("detect and validate ssh config: %v", err)
+	}
+	if metadata.AdapterID != AdapterSSH {
+		t.Fatalf("expected ssh adapter, got %q", metadata.AdapterID)
+	}
+}
