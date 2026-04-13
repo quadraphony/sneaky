@@ -91,6 +91,11 @@ Each adapter must define:
 - shutdown logic
 - runtime status reporting
 
+For the SSH adapter family specifically, capability declaration must make it explicit that the adapter:
+- provides local SOCKS forwarding
+- honors host key checking policy
+- honors an explicit known-hosts file when configured
+
 ## Config Detection Strategy
 
 Detection must be explicit and deterministic.

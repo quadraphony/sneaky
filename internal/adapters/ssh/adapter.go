@@ -24,7 +24,11 @@ func (a *Adapter) Identity() string {
 }
 
 func (a *Adapter) Capabilities() adapter.Capabilities {
-	return adapter.Capabilities{}
+	return adapter.Capabilities{
+		SupportsLocalSOCKS:    true,
+		HonorsKnownHostsFile:  true,
+		HonorsHostKeyChecking: true,
+	}
 }
 
 func (a *Adapter) ValidateConfig(req adapter.StartRequest) error {

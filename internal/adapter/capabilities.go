@@ -2,6 +2,9 @@ package adapter
 
 // Capabilities declares optional surfaces an adapter can expose.
 type Capabilities struct {
-	ProvidesLogs  bool
-	ProvidesStats bool
+	ProvidesLogs          bool
+	ProvidesStats         bool
+	SupportsLocalSOCKS    bool
+	HonorsKnownHostsFile  bool
+	HonorsHostKeyChecking bool
 }
