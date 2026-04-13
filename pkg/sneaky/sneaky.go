@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"sneaky-core/internal/adapter"
+	"sneaky-core/internal/adapters/singbox"
 	"sneaky-core/internal/core"
 	"sneaky-core/internal/runtime"
 )
@@ -38,8 +39,11 @@ type StartRequest struct {
 }
 
 func New() *Manager {
+	registry := adapter.NewRegistry()
+	registry.MustRegister(singbox.New(""))
+
 	return &Manager{
-		core: core.NewManager(adapter.NewRegistry()),
+		core: core.NewManager(registry),
 	}
 }
 
