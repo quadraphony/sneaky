@@ -205,3 +205,25 @@ func TestManagerStopFailureKeepsSessionRunning(t *testing.T) {
 		t.Fatalf("expected stop failure log, got %#v", logs)
 	}
 }
+
+func TestManagerCanRestartAfterCleanStop(t *testing.T) {
+	reg := adapter.NewRegistry()
+	if err := reg.Register(&fakeAdapter{id: "singbox"}); err != nil {
+		t.Fatalf("register adapter: %v", err)
+	}
+
+	manager := core.NewManager(reg)
+	for i := 0; i < 2; i++ {
+		if err := manager.Start(context.Background(), core.StartRequest{AdapterID: "singbox"}); err != nil {
+			t.Fatalf("start iteration %d: %v", i, err)
+		}
+		if err := manager.Stop(context.Background()); err != nil {
+			t.Fatalf("stop iteration %d: %v", i, err)
+		}
+	}
+
+	statsSnap := manager.Stats()
+	if statsSnap.SessionsStarted != 2 {
+		t.Fatalf("expected 2 sessions started, got %d", statsSnap.SessionsStarted)
+	}
+}
