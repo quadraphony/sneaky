@@ -1,0 +1,32 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2092
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "tuic",
+      "tag": "tuic-out",
+      "server": "127.0.0.1",
+      "server_port": 19012,
+      "uuid": "33333333-3333-3333-3333-333333333333",
+      "password": "pw123",
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "insecure": true
+      }
+    }
+  ],
+  "route": {
+    "final": "tuic-out",
+    "auto_detect_interface": true
+  }
+}

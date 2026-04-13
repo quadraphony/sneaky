@@ -1,0 +1,33 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2093
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "hysteria",
+      "tag": "hysteria-out",
+      "server": "127.0.0.1",
+      "server_port": 19013,
+      "up_mbps": 100,
+      "down_mbps": 100,
+      "auth_str": "pw123",
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "insecure": true
+      }
+    }
+  ],
+  "route": {
+    "final": "hysteria-out",
+    "auto_detect_interface": true
+  }
+}

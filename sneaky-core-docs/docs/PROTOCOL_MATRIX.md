@@ -33,20 +33,21 @@ These future adapter families are **not implemented** unless explicitly stated o
 | VMess | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
 | Trojan | proxy protocol | verified in coverage phase | verified | local TLS loopback runtime and probe passed |
 | Shadowsocks | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
-| WireGuard via sing-box | proxy / tunnel | test after first batch | blocked | key generation and peer wiring not yet automated |
-| Hysteria2 | proxy protocol | test after first batch | blocked | QUIC/TLS verification path not completed in this repo |
-| TUIC | proxy protocol | test after first batch | blocked | QUIC/TLS verification path not completed in this repo |
-| SSH via sing-box | proxy protocol | optional after first batch | blocked | repo has standalone SSH adapter; sing-box SSH path not verified |
-| Naive | proxy protocol | deferred | not implemented | phase-later candidate |
-| ShadowTLS | proxy protocol | deferred | not implemented | phase-later candidate |
-| AnyTLS | proxy protocol | deferred | not implemented | phase-later candidate |
-| Hysteria | proxy protocol | deferred | not implemented | prefer Hysteria2 first |
-| Tor | outbound capability | deferred | not implemented | environment dependent |
+| WireGuard via sing-box | proxy / tunnel | next candidate | blocked | outbound exists, but loopback peer automation and address assignment are not built yet |
+| Hysteria2 | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
+| TUIC | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
+| SSH via sing-box | proxy protocol | optional after second batch | blocked | local `sshd` runtime is not installed on this machine |
+| Naive | proxy protocol | deferred | blocked | current local `sing-box 1.8.10` reports unknown outbound type |
+| ShadowTLS | proxy protocol | deferred | partially verified | config type is recognized, but no loopback runtime/probe fixture is implemented yet |
+| AnyTLS | proxy protocol | deferred | blocked | current local `sing-box 1.8.10` reports unknown outbound type |
+| Hysteria | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
+| Tor | outbound capability | deferred | blocked | config parses, but runtime probe failed on this machine |
 | SOCKS | utility outbound/inbound | utility path only | partially verified | used in runtime probe path, not primary protocol target |
-| HTTP CONNECT | outbound type | deferred | not implemented | can be added later as utility path |
-| DNS outbound | internal capability | out of verification focus | not implemented | not part of primary coverage phase |
+| HTTP CONNECT | utility outbound/inbound | verified utility path | verified | local loopback runtime and probe passed |
+| DNS outbound | internal capability | out of verification focus | partially verified | utility fixture validates with `sing-box check` |
 | Selector | utility outbound | out of verification focus | not implemented | management utility, not primary protocol |
-| URLTest | utility outbound | out of verification focus | not implemented | management utility, not primary protocol |
+| Selector | utility outbound | out of verification focus | partially verified | utility fixture validates with `sing-box check` |
+| URLTest | utility outbound | out of verification focus | partially verified | utility fixture validates with `sing-box check` |
 | Direct | utility outbound | baseline utility | partially verified | used by loopback servers |
 | Block | utility outbound | baseline utility | partially verified | not a proxy protocol target |
 
@@ -70,8 +71,12 @@ This repo verified, in order:
 2. VMess
 3. Trojan
 4. Shadowsocks
+5. Hysteria2
+6. TUIC
+7. Hysteria
+8. HTTP CONNECT
 
 The next sing-box candidates remain:
-5. WireGuard via sing-box
-6. Hysteria2
-7. TUIC
+9. WireGuard via sing-box
+10. ShadowTLS
+11. SSH via sing-box

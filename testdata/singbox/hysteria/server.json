@@ -1,0 +1,32 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "hysteria",
+      "tag": "hysteria-in",
+      "listen": "127.0.0.1",
+      "listen_port": 19013,
+      "up_mbps": 100,
+      "down_mbps": 100,
+      "users": [
+        {
+          "auth_str": "pw123"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "certificate_path": "testdata/certs/localhost.crt",
+        "key_path": "testdata/certs/localhost.key"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}

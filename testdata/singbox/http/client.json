@@ -1,0 +1,25 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2094
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "http",
+      "tag": "http-out",
+      "server": "127.0.0.1",
+      "server_port": 19014
+    }
+  ],
+  "route": {
+    "final": "http-out",
+    "auto_detect_interface": true
+  }
+}

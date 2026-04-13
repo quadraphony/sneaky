@@ -67,3 +67,84 @@ For each protocol:
   - loopback server started successfully
   - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
 - Final label: `verified`
+
+### Hysteria2
+- Server fixture: `testdata/singbox/hysteria2/server.json`
+- Client fixture: `testdata/singbox/hysteria2/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/hysteria2/server.json`
+  - `sing-box check -c testdata/singbox/hysteria2/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/hysteria2/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/hysteria2/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### TUIC
+- Server fixture: `testdata/singbox/tuic/server.json`
+- Client fixture: `testdata/singbox/tuic/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/tuic/server.json`
+  - `sing-box check -c testdata/singbox/tuic/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/tuic/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/tuic/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### Hysteria
+- Server fixture: `testdata/singbox/hysteria/server.json`
+- Client fixture: `testdata/singbox/hysteria/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/hysteria/server.json`
+  - `sing-box check -c testdata/singbox/hysteria/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/hysteria/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/hysteria/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+### HTTP CONNECT
+- Server fixture: `testdata/singbox/http/server.json`
+- Client fixture: `testdata/singbox/http/client.json`
+- Validation command:
+  - `sing-box check -c testdata/singbox/http/server.json`
+  - `sing-box check -c testdata/singbox/http/client.json`
+- Runtime command:
+  - `sing-box run -c testdata/singbox/http/server.json`
+  - `go run ./cmd/sneakycli probe testdata/singbox/http/client.json https://example.com`
+- Observed result:
+  - loopback server started successfully
+  - `sneakycli probe` returned `probe ok adapter=singbox ... status=200 ...`
+- Final label: `verified`
+
+## Blocked Rows
+
+### Naive
+- Validation command:
+  - `sing-box check -c <naive-fixture>`
+- Observed result:
+  - `unknown outbound type: naive`
+- Final label: `blocked`
+
+### AnyTLS
+- Validation command:
+  - `sing-box check -c <anytls-fixture>`
+- Observed result:
+  - `unknown outbound type: anytls`
+- Final label: `blocked`
+
+### Tor
+- Validation command:
+  - `sing-box check -c <tor-fixture>`
+- Runtime command:
+  - `go run ./cmd/sneakycli probe <tor-fixture> https://example.com`
+- Observed result:
+  - probe failed with local SOCKS connection refusal on this machine
+- Final label: `blocked`

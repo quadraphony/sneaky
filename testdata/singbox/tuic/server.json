@@ -1,0 +1,31 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "tuic",
+      "tag": "tuic-in",
+      "listen": "127.0.0.1",
+      "listen_port": 19012,
+      "users": [
+        {
+          "uuid": "33333333-3333-3333-3333-333333333333",
+          "password": "pw123"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "certificate_path": "testdata/certs/localhost.crt",
+        "key_path": "testdata/certs/localhost.key"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}

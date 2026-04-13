@@ -1,0 +1,16 @@
+{
+  "dns": {
+    "servers": [
+      {
+        "tag": "local",
+        "address": "local"
+      }
+    ]
+  },
+  "outbounds": [
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    }
+  ]
+}

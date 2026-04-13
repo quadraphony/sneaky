@@ -26,6 +26,10 @@ func TestSingboxCoverageFirstBatch(t *testing.T) {
 		{name: "vmess", serverPath: "testdata/singbox/vmess/server.json", clientPath: "testdata/singbox/vmess/client.json"},
 		{name: "trojan", serverPath: "testdata/singbox/trojan/server.json", clientPath: "testdata/singbox/trojan/client.json"},
 		{name: "shadowsocks", serverPath: "testdata/singbox/shadowsocks/server.json", clientPath: "testdata/singbox/shadowsocks/client.json"},
+		{name: "hysteria2", serverPath: "testdata/singbox/hysteria2/server.json", clientPath: "testdata/singbox/hysteria2/client.json"},
+		{name: "tuic", serverPath: "testdata/singbox/tuic/server.json", clientPath: "testdata/singbox/tuic/client.json"},
+		{name: "hysteria", serverPath: "testdata/singbox/hysteria/server.json", clientPath: "testdata/singbox/hysteria/client.json"},
+		{name: "http-connect", serverPath: "testdata/singbox/http/server.json", clientPath: "testdata/singbox/http/client.json"},
 	}
 
 	for _, tc := range cases {
@@ -66,6 +70,16 @@ func TestSingboxCoverageFirstBatch(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSingboxUtilityFixturesValidate(t *testing.T) {
+	if _, err := exec.LookPath("sing-box"); err != nil {
+		t.Skip("sing-box binary not available")
+	}
+
+	repoRoot := locateRepoRoot(t)
+	checkConfig(t, repoRoot, filepath.Join(repoRoot, "testdata/singbox/utilities/dns.json"))
+	checkConfig(t, repoRoot, filepath.Join(repoRoot, "testdata/singbox/utilities/routing.json"))
 }
 
 func checkConfig(t *testing.T, repoRoot, path string) {

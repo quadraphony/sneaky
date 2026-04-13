@@ -65,8 +65,13 @@ sneaky-core/
 ├── testdata/
 │   ├── certs/
 │   └── singbox/
+│       ├── http/
+│       ├── hysteria/
+│       ├── hysteria2/
 │       ├── shadowsocks/
 │       ├── trojan/
+│       ├── tuic/
+│       ├── utilities/
 │       ├── vless/
 │       ├── vmess/
 │       └── wireguard/
