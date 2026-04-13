@@ -90,6 +90,17 @@ func TestManagerStartStopLifecycle(t *testing.T) {
 		t.Fatal("expected active snapshot while running")
 	}
 
+	statsSnap := manager.Stats()
+	if statsSnap.State != runtime.StateRunning {
+		t.Fatalf("expected running stats state, got %q", statsSnap.State)
+	}
+	if statsSnap.SessionsStarted != 1 {
+		t.Fatalf("expected 1 started session, got %d", statsSnap.SessionsStarted)
+	}
+	if len(manager.Logs()) < 2 {
+		t.Fatal("expected start logs to be recorded")
+	}
+
 	err := manager.Start(context.Background(), core.StartRequest{AdapterID: "singbox"})
 	if err == nil {
 		t.Fatal("expected second start to fail")
@@ -109,6 +120,14 @@ func TestManagerStartStopLifecycle(t *testing.T) {
 	}
 	if snap.Active {
 		t.Fatal("expected inactive snapshot after stop")
+	}
+
+	logs := manager.Logs()
+	if len(logs) < 4 {
+		t.Fatalf("expected stop logs to be recorded, got %d", len(logs))
+	}
+	if logs[len(logs)-1].Event != "manager.stop.succeeded" {
+		t.Fatalf("expected final log to be stop success, got %q", logs[len(logs)-1].Event)
 	}
 }
 
@@ -135,6 +154,15 @@ func TestManagerStartValidationFailureKeepsStoppedState(t *testing.T) {
 	}
 	if snap.LastError == nil {
 		t.Fatal("expected last error to be retained")
+	}
+
+	statsSnap := manager.Stats()
+	if statsSnap.StartFailures != 1 {
+		t.Fatalf("expected 1 start failure, got %d", statsSnap.StartFailures)
+	}
+	logs := manager.Logs()
+	if len(logs) == 0 || logs[len(logs)-1].Event != "manager.start.validation_failed" {
+		t.Fatalf("expected validation failure log, got %#v", logs)
 	}
 }
 
@@ -166,5 +194,14 @@ func TestManagerStopFailureKeepsSessionRunning(t *testing.T) {
 	}
 	if snap.LastError == nil {
 		t.Fatal("expected stop failure to be stored")
+	}
+
+	statsSnap := manager.Stats()
+	if statsSnap.StopFailures != 1 {
+		t.Fatalf("expected 1 stop failure, got %d", statsSnap.StopFailures)
+	}
+	logs := manager.Logs()
+	if len(logs) == 0 || logs[len(logs)-1].Event != "manager.stop.failed" {
+		t.Fatalf("expected stop failure log, got %#v", logs)
 	}
 }
