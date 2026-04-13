@@ -16,6 +16,9 @@ Validates:
 ### `sneakycli start <config-path>`
 Starts the detected adapter using the provided config.
 
+### `sneakycli probe <config-path> <url>`
+Starts the detected adapter and performs a real HTTP request through the tunnel.
+
 ### `sneakycli status`
 Reports current runtime state if the process model supports it.
 

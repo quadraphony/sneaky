@@ -2,16 +2,21 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"sneaky-core/internal/config"
 	"sneaky-core/pkg/sneaky"
+	"golang.org/x/net/proxy"
 )
 
 const version = "dev"
@@ -37,6 +42,8 @@ func (a *App) Run(args []string) int {
 	switch args[0] {
 	case "validate":
 		return a.runValidate(args[1:])
+	case "probe":
+		return a.runProbe(args[1:])
 	case "start":
 		return a.runStart(args[1:])
 	case "stop":
@@ -199,7 +206,7 @@ func (a *App) runStatus(args []string) int {
 
 func (a *App) printUsage() {
 	fmt.Fprintln(a.Stdout, "usage: sneakycli <command> [args]")
-	fmt.Fprintln(a.Stdout, "commands: validate, start, stop, status, version")
+	fmt.Fprintln(a.Stdout, "commands: validate, probe, start, stop, status, version")
 }
 
 func inspectConfig(path string) (config.Metadata, error) {
@@ -210,3 +217,201 @@ func inspectConfig(path string) (config.Metadata, error) {
 
 	return config.DetectAndValidate(input)
 }
+
+func (a *App) runProbe(args []string) int {
+	if len(args) != 2 {
+		fmt.Fprintln(a.Stderr, "usage: sneakycli probe <config-path> <url>")
+		return 2
+	}
+
+	configPath := args[0]
+	targetURL := args[1]
+
+	metadata, err := inspectConfig(configPath)
+	if err != nil {
+		fmt.Fprintf(a.Stderr, "probe failed: %v\n", err)
+		return 1
+	}
+
+	startReq, proxyPort, cleanup, err := probeRequest(configPath, metadata)
+	if err != nil {
+		fmt.Fprintf(a.Stderr, "probe failed: %v\n", err)
+		return 1
+	}
+	defer cleanup()
+
+	manager := sneaky.New()
+	if err := manager.Start(context.Background(), startReq); err != nil {
+		fmt.Fprintf(a.Stderr, "probe failed: %v\n", err)
+		return 1
+	}
+	defer func() {
+		stopCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = manager.Stop(stopCtx)
+	}()
+
+	statusCode, bodyBytes, err := probeHTTP(targetURL, proxyPort)
+	if err != nil {
+		fmt.Fprintf(a.Stderr, "probe failed: %v\n", err)
+		return 1
+	}
+
+	fmt.Fprintf(a.Stdout, "probe ok adapter=%s proxy_port=%d status=%d bytes=%d\n", metadata.AdapterID, proxyPort, statusCode, bodyBytes)
+	return 0
+}
+
+func probeRequest(configPath string, metadata config.Metadata) (sneaky.StartRequest, int, func(), error) {
+	switch metadata.AdapterID {
+	case config.AdapterSingbox:
+		raw, port, err := prepareSingboxProbeConfig(configPath)
+		if err != nil {
+			return sneaky.StartRequest{}, 0, noop, err
+		}
+		return sneaky.StartRequest{
+			AdapterID: metadata.AdapterID,
+			RawConfig: raw,
+		}, port, noop, nil
+	case config.AdapterSSH:
+		port, err := sshProbePort(configPath)
+		if err != nil {
+			return sneaky.StartRequest{}, 0, noop, err
+		}
+		return sneaky.StartRequest{
+			AdapterID:  metadata.AdapterID,
+			ConfigPath: configPath,
+		}, port, noop, nil
+	default:
+		return sneaky.StartRequest{}, 0, noop, fmt.Errorf("probe is not implemented for adapter %q", metadata.AdapterID)
+	}
+}
+
+func probeHTTP(targetURL string, proxyPort int) (int, int, error) {
+	proxyAddr := net.JoinHostPort("127.0.0.1", strconv.Itoa(proxyPort))
+	socksDialer, err := proxy.SOCKS5("tcp", proxyAddr, nil, proxy.Direct)
+	if err != nil {
+		return 0, 0, fmt.Errorf("create SOCKS5 dialer: %w", err)
+	}
+
+	dialContext := func(ctx context.Context, network, addr string) (net.Conn, error) {
+		type contextDialer interface {
+			DialContext(context.Context, string, string) (net.Conn, error)
+		}
+		if d, ok := socksDialer.(contextDialer); ok {
+			return d.DialContext(ctx, network, addr)
+		}
+		return socksDialer.Dial(network, addr)
+	}
+
+	client := &http.Client{
+		Timeout: 20 * time.Second,
+		Transport: &http.Transport{
+			DialContext:         dialContext,
+			TLSHandshakeTimeout: 10 * time.Second,
+		},
+	}
+
+	resp, err := client.Get(targetURL)
+	if err != nil {
+		return 0, 0, fmt.Errorf("perform HTTP request through proxy: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, 0, fmt.Errorf("read HTTP response body: %w", err)
+	}
+
+	return resp.StatusCode, len(body), nil
+}
+
+func prepareSingboxProbeConfig(path string) ([]byte, int, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, 0, fmt.Errorf("read sing-box config: %w", err)
+	}
+
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return nil, 0, fmt.Errorf("decode sing-box config: %w", err)
+	}
+
+	outbounds, ok := doc["outbounds"].([]any)
+	if !ok || len(outbounds) == 0 {
+		return nil, 0, fmt.Errorf("sing-box probe requires at least one outbound")
+	}
+
+	firstOutbound, ok := outbounds[0].(map[string]any)
+	if !ok {
+		return nil, 0, fmt.Errorf("sing-box probe requires object outbounds")
+	}
+
+	tag, _ := firstOutbound["tag"].(string)
+	if tag == "" {
+		tag = "probe-out"
+		firstOutbound["tag"] = tag
+	}
+
+	port, err := reserveLocalPort()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	doc["inbounds"] = []map[string]any{
+		{
+			"type":        "socks",
+			"tag":         "probe-in",
+			"listen":      "127.0.0.1",
+			"listen_port": port,
+		},
+	}
+
+	route, _ := doc["route"].(map[string]any)
+	if route == nil {
+		route = map[string]any{}
+	}
+	route["final"] = tag
+	doc["route"] = route
+
+	updated, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		return nil, 0, fmt.Errorf("encode probe config: %w", err)
+	}
+	return updated, port, nil
+}
+
+func sshProbePort(path string) (int, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return 0, fmt.Errorf("read ssh config: %w", err)
+	}
+
+	var doc struct {
+		SSHTunnel struct {
+			LocalSOCKSPort int `json:"local_socks_port"`
+		} `json:"ssh_tunnel"`
+	}
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		return 0, fmt.Errorf("decode ssh config: %w", err)
+	}
+	if doc.SSHTunnel.LocalSOCKSPort <= 0 {
+		return 0, fmt.Errorf("ssh_tunnel.local_socks_port must be greater than zero")
+	}
+	return doc.SSHTunnel.LocalSOCKSPort, nil
+}
+
+func reserveLocalPort() (int, error) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return 0, fmt.Errorf("reserve local port: %w", err)
+	}
+	defer listener.Close()
+
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		return 0, fmt.Errorf("resolve reserved port")
+	}
+	return addr.Port, nil
+}
+
+func noop() {}

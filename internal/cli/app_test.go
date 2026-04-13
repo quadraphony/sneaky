@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -107,6 +108,33 @@ func TestHelperProcess(t *testing.T) {
 
 	app := New(os.Stdout, os.Stderr)
 	os.Exit(app.Run(args))
+}
+
+func TestPrepareSingboxProbeConfig(t *testing.T) {
+	path := writeTestConfig(t)
+
+	raw, port, err := prepareSingboxProbeConfig(path)
+	if err != nil {
+		t.Fatalf("prepare probe config: %v", err)
+	}
+	if port <= 0 {
+		t.Fatalf("expected positive port, got %d", port)
+	}
+
+	var doc map[string]any
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatalf("decode probe config: %v", err)
+	}
+
+	inbounds, ok := doc["inbounds"].([]any)
+	if !ok || len(inbounds) != 1 {
+		t.Fatalf("expected single probe inbound, got %#v", doc["inbounds"])
+	}
+
+	route, ok := doc["route"].(map[string]any)
+	if !ok || route["final"] == "" {
+		t.Fatalf("expected route final in probe config, got %#v", doc["route"])
+	}
 }
 
 func writeTestConfig(t *testing.T) string {

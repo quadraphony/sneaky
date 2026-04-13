@@ -13,3 +13,11 @@ Current implemented phases:
 - Phase 6 second adapter introduction with SSH direct SOCKS tunneling
 - Phase 7 binding preparation
 - Phase 8 hardening
+
+CLI commands:
+- `validate`
+- `probe`
+- `start`
+- `stop`
+- `status`
+- `version`
