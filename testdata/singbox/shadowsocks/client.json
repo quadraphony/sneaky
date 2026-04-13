@@ -1,0 +1,27 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2083
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "shadowsocks",
+      "tag": "ss-out",
+      "server": "127.0.0.1",
+      "server_port": 18388,
+      "method": "aes-128-gcm",
+      "password": "local-password-123"
+    }
+  ],
+  "route": {
+    "final": "ss-out",
+    "auto_detect_interface": true
+  }
+}

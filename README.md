@@ -21,3 +21,7 @@ CLI commands:
 - `stop`
 - `status`
 - `version`
+
+Coverage docs:
+- `docs/PROTOCOL_MATRIX.md`
+- `docs/SINGBOX_COVERAGE_RESULTS.md`

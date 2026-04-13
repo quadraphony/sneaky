@@ -15,6 +15,11 @@ sneaky-core/
 │   ├── 04_PHASE_PLAN.md
 │   ├── 05_PROTOCOL_MATRIX.md
 │   ├── 06_CLI_SPEC.md
+│   ├── 07_BINDING_PREPARATION.md
+│   ├── PROTOCOL_MATRIX.md
+│   ├── SINGBOX_COVERAGE_RESULTS.md
+│   ├── prompts/
+│   │   └── SINGBOX_COVERAGE_PHASE_PROMPT.md
 │   └── AI_DEV_RULES.md
 ├── cmd/
 │   └── sneakycli/
@@ -57,10 +62,19 @@ sneaky-core/
 ├── pkg/
 │   └── sneaky/
 │       └── sneaky.go
+├── testdata/
+│   ├── certs/
+│   └── singbox/
+│       ├── shadowsocks/
+│       ├── trojan/
+│       ├── vless/
+│       ├── vmess/
+│       └── wireguard/
 ├── tests/
 │   ├── config/
 │   ├── adapters/
 │   └── integration/
+│       └── singbox_coverage_test.go
 └── scripts/
     ├── build.sh
     └── test.sh

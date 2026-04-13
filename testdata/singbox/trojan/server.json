@@ -1,0 +1,31 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "trojan",
+      "tag": "trojan-in",
+      "listen": "127.0.0.1",
+      "listen_port": 18443,
+      "users": [
+        {
+          "name": "local-test",
+          "password": "super-secret-password"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "certificate_path": "testdata/certs/localhost.crt",
+        "key_path": "testdata/certs/localhost.key"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ]
+}

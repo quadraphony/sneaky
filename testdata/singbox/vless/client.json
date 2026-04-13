@@ -1,0 +1,26 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2080
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "vless-out",
+      "server": "127.0.0.1",
+      "server_port": 18080,
+      "uuid": "11111111-1111-1111-1111-111111111111"
+    }
+  ],
+  "route": {
+    "final": "vless-out",
+    "auto_detect_interface": true
+  }
+}

@@ -6,6 +6,8 @@ This file defines what is actually in scope and how protocol support must be tre
 
 A protocol is not considered supported just because it is listed here.
 
+Detailed sing-box protocol coverage lives in `docs/PROTOCOL_MATRIX.md`.
+
 Support status must be one of:
 - planned
 - under evaluation

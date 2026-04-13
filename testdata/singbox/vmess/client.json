@@ -1,0 +1,28 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2081
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vmess",
+      "tag": "vmess-out",
+      "server": "127.0.0.1",
+      "server_port": 18081,
+      "uuid": "22222222-2222-2222-2222-222222222222",
+      "security": "auto",
+      "alter_id": 0
+    }
+  ],
+  "route": {
+    "final": "vmess-out",
+    "auto_detect_interface": true
+  }
+}

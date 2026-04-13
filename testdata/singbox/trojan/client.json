@@ -1,0 +1,31 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2082
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "trojan",
+      "tag": "trojan-out",
+      "server": "127.0.0.1",
+      "server_port": 18443,
+      "password": "super-secret-password",
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "insecure": true
+      }
+    }
+  ],
+  "route": {
+    "final": "trojan-out",
+    "auto_detect_interface": true
+  }
+}
