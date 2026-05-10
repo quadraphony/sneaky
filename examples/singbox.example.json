@@ -1,0 +1,7 @@
+{
+  "adapter": "sing-box",
+  "config": {
+    "inbound": {},
+    "outbound": {}
+  }
+}

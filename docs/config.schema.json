@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["adapter", "config"],
+  "properties": {
+    "adapter": {
+      "type": "string",
+      "enum": ["sing-box", "ssh-socks", "wireguard"]
+    },
+    "config": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

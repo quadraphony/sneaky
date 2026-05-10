@@ -1,0 +1,10 @@
+{
+  "adapter": "ssh-socks",
+  "config": {
+    "host": "example.com",
+    "port": 22,
+    "user": "username",
+    "private_key_path": "/path/to/id_rsa",
+    "local_socks_port": 1080
+  }
+}
