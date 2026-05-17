@@ -21,7 +21,13 @@ type ProcessHandle struct {
 	waitErr error
 }
 
+type ReadinessFunc func() bool
+
 func StartProcess(cmd *exec.Cmd, cleanup func()) (*ProcessHandle, error) {
+	return StartProcessWithReadiness(cmd, cleanup, nil)
+}
+
+func StartProcessWithReadiness(cmd *exec.Cmd, cleanup func(), ready ReadinessFunc) (*ProcessHandle, error) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	cmd.Stdout = stdout
@@ -48,21 +54,41 @@ func StartProcess(cmd *exec.Cmd, cleanup func()) (*ProcessHandle, error) {
 		handle.done <- err
 	}()
 
-	select {
-	case err := <-handle.done:
-		if err != nil {
-			detail := bytes.TrimSpace(append(stdout.Bytes(), stderr.Bytes()...))
-			if len(detail) > 0 {
-				return nil, fmt.Errorf("process exited during startup: %s", detail)
-			}
-			return nil, fmt.Errorf("process exited during startup: %w", err)
+	// If no readiness check is provided, we use a simple heuristic:
+	// If the process survives for 250ms, we assume it's running.
+	if ready == nil {
+		start := time.Now()
+		ready = func() bool {
+			return time.Since(start) > 250*time.Millisecond
 		}
-		return nil, fmt.Errorf("process exited during startup without error")
-	case <-time.After(250 * time.Millisecond):
-		handle.mu.Lock()
-		handle.state = StateRunning
-		handle.mu.Unlock()
-		return handle, nil
+	}
+
+	ticker := time.NewTicker(20 * time.Millisecond)
+	defer ticker.Stop()
+	timeout := time.After(5 * time.Second)
+
+	for {
+		select {
+		case err := <-handle.done:
+			if err != nil {
+				detail := bytes.TrimSpace(append(stdout.Bytes(), stderr.Bytes()...))
+				if len(detail) > 0 {
+					return nil, fmt.Errorf("process exited during startup: %s", detail)
+				}
+				return nil, fmt.Errorf("process exited during startup: %w", err)
+			}
+			return nil, fmt.Errorf("process exited during startup without error")
+		case <-ticker.C:
+			if ready() {
+				handle.mu.Lock()
+				handle.state = StateRunning
+				handle.mu.Unlock()
+				return handle, nil
+			}
+		case <-timeout:
+			handle.Stop(context.Background())
+			return nil, fmt.Errorf("process did not become ready in time")
+		}
 	}
 }
 

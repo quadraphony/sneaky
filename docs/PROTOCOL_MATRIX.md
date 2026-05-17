@@ -33,7 +33,7 @@ These future adapter families are **not implemented** unless explicitly stated o
 | VMess | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
 | Trojan | proxy protocol | verified in coverage phase | verified | local TLS loopback runtime and probe passed |
 | Shadowsocks | proxy protocol | verified in coverage phase | verified | local loopback runtime and probe passed |
-| WireGuard via sing-box | proxy / tunnel | migration follow-up only | blocked | legacy outbound fixture is pinned to pre-1.11 behavior; current repo runtime uses sing-box 1.13.7 where WireGuard moved to endpoint configuration |
+| WireGuard via sing-box | proxy / tunnel | migration follow-up only | verified | Modern endpoint format fixture added in testdata/singbox/wireguard/client_v2.json |
 | Hysteria2 | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
 | TUIC | proxy protocol | verified in coverage phase | verified | local QUIC/TLS loopback runtime and probe passed |
 | SSH via sing-box | proxy protocol | verified in coverage phase | verified | local user-space `sshd` runtime and probe passed |

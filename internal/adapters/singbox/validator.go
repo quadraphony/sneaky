@@ -70,8 +70,8 @@ func (a *Adapter) prepareConfig(req adapter.StartRequest) (string, func(), error
 	return absPath, noopCleanup, nil
 }
 
-func (a *Adapter) checkConfig(ctx context.Context, path string) error {
-	cmd := exec.CommandContext(ctx, a.binary(), "check", "-c", path, "--disable-color")
+func (a *Adapter) checkConfig(ctx context.Context, bin, path string) error {
+	cmd := exec.CommandContext(ctx, bin, "check", "-c", path, "--disable-color")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		if len(output) == 0 {
@@ -88,9 +88,25 @@ func (a *Adapter) binary() string {
 	}
 	path, err := tools.ResolveSingbox()
 	if err != nil {
+		// Return the unresolved name as a fallback, which exec will eventually
+		// try to resolve via PATH.
 		return "sing-box"
 	}
 	return path
+}
+
+func (a *Adapter) resolveBinary() (string, error) {
+	if a.binaryPath != "" {
+		if _, err := os.Stat(a.binaryPath); err != nil {
+			return "", fmt.Errorf("sing-box binary not found at %s: %w", a.binaryPath, err)
+		}
+		return a.binaryPath, nil
+	}
+	path, err := tools.ResolveSingbox()
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve sing-box binary: %w", err)
+	}
+	return path, nil
 }
 
 func noopCleanup() {}

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -61,7 +62,11 @@ func (m *Manager) Start(ctx context.Context, req StartRequest) error {
 		return err
 	}
 
-	m.logger.Info("manager.start.requested", "manager start requested", map[string]string{"adapter_id": req.AdapterID})
+	m.logger.Info("manager.start.requested", "manager start requested", map[string]string{
+		"adapter_id":  req.AdapterID,
+		"config_path": req.Config.ConfigPath,
+		"has_raw":     fmt.Sprintf("%v", len(req.Config.RawConfig) > 0),
+	})
 	m.state = runtime.StateStarting
 	m.pendingAdapterID = req.AdapterID
 	m.stats.RecordStarting(req.AdapterID)
@@ -130,7 +135,10 @@ func (m *Manager) Stop(ctx context.Context) error {
 	}
 
 	adapterID := m.session.Context.AdapterID
-	m.logger.Info("manager.stop.requested", "manager stop requested", map[string]string{"adapter_id": adapterID})
+	m.logger.Info("manager.stop.requested", "manager stop requested", map[string]string{
+		"adapter_id": adapterID,
+		"uptime":     time.Since(m.session.Context.StartedAt).String(),
+	})
 	m.state = runtime.StateStopping
 	m.stats.RecordStopping()
 	if err := m.session.Handle.Stop(ctx); err != nil {

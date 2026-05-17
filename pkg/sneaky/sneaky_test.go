@@ -2,6 +2,7 @@ package sneaky
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"testing"
 	"time"
@@ -47,6 +48,34 @@ func TestManagerRepeatedStartStop(t *testing.T) {
 	}
 	if len(manager.Logs()) == 0 {
 		t.Fatal("expected logs to be recorded")
+	}
+
+	for _, entry := range manager.Logs() {
+		if entry.Message == "" {
+			t.Error("expected non-empty log message")
+		}
+	}
+}
+
+func TestInspectConfigPath(t *testing.T) {
+	if _, err := exec.LookPath("sing-box"); err != nil {
+		t.Skip("sing-box binary not available")
+	}
+
+	tempDir := t.TempDir()
+	configPath := tempDir + "/config.json"
+	err := os.WriteFile(configPath, []byte(singboxConfig), 0644)
+	if err != nil {
+		t.Fatalf("failed to write temp config: %v", err)
+	}
+
+	metadata, err := InspectConfigPath(configPath)
+	if err != nil {
+		t.Fatalf("InspectConfigPath failed: %v", err)
+	}
+
+	if metadata.AdapterID != AdapterIDSingbox {
+		t.Errorf("expected adapter %v, got %v", AdapterIDSingbox, metadata.AdapterID)
 	}
 }
 
