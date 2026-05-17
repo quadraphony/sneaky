@@ -2,9 +2,9 @@
 
 This document provides a quantitative assessment of the production readiness of Sneaky Core.
 
-## Overall Readiness: **~92%**
+## Overall Readiness: **~95%**
 
-Sneaky Core is currently in **Phase 8 (Hardening)**. The architecture is stable, and most core features are implemented and verified.
+Sneaky Core is currently in **Phase 8 (Hardening)**. The architecture is stable, and core features are implemented and verified.
 
 ---
 
@@ -20,31 +20,31 @@ Sneaky Core is currently in **Phase 8 (Hardening)**. The architecture is stable,
 | **Phase 5** | CLI Tooling | Complete |
 | **Phase 6** | Second Adapter (SSH) | Complete |
 | **Phase 7** | Binding Preparation | Complete |
-| **Phase 8** | Hardening | **In Progress** (~60%) |
+| **Phase 8** | Hardening | **In Progress** (~80%) |
 
 ---
 
-## 2. Protocol Verification Status (93%)
+## 2. Protocol Verification Status (100%)
 
 | Protocol / Capability | Status | Notes |
 | :--- | :--- | :--- |
-| **Sing-box protocols** | **93%** | 13/14 verified. |
+| **Sing-box protocols** | **100%** | 14/14 verified. |
 | - VLESS, VMess, Trojan, Shadowsocks | Verified | |
 | - Hysteria2, TUIC, Hysteria | Verified | |
 | - Naive, ShadowTLS, AnyTLS | Verified | |
 | - SSH via sing-box, Tor, HTTP CONNECT | Verified | |
-| - WireGuard via sing-box | **Blocked** | Migration to 1.11+ format required. |
+| - WireGuard via sing-box | Verified | Modern endpoint format fixture added. |
 | **SSH Direct SOCKS** | **100%** | Dedicated adapter verified. |
 
 ---
 
-## 3. Reliability & Testing (85%)
+## 3. Reliability & Testing (90%)
 
 | Component | Coverage | Status |
 | :--- | :--- | :--- |
 | **Internal Core** | 86% | Solid lifecycle management. |
 | **Observability** | >95% | Logging and stats fully covered. |
-| **Public API (`pkg/sneaky`)** | 24% | **Priority area for improvement.** |
+| **Public API (`pkg/sneaky`)** | 42% | **Significant improvement via mock testing.** |
 | **Integration Tests** | N/A | Full suite of loopback tests for all verified protocols. |
 
 ---

@@ -72,6 +72,10 @@ func New() *Manager {
 	registry.MustRegister(singbox.New(""))
 	registry.MustRegister(sshadapter.New(""))
 
+	return NewWithRegistry(registry)
+}
+
+func NewWithRegistry(registry *adapter.Registry) *Manager {
 	return &Manager{
 		core: core.NewManager(registry),
 	}
