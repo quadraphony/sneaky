@@ -145,12 +145,32 @@ func writeFakeSSHBinary(t *testing.T) string {
 
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ssh")
+
+	// We need the script to listen on the SOCKS port to pass the readiness check.
 	script := `#!/usr/bin/env bash
 set -euo pipefail
-if [[ "${1:-}" == "-G" ]]; then
+if [[ "$*" == *"-G"* ]]; then
   exit 0
 fi
-trap 'exit 0' TERM INT
+
+# Extract SOCKS port from args
+SOCKS_PORT=""
+for i in "$@"; do
+  if [[ "${prev:-}" == "-D" ]]; then
+    SOCKS_PORT="${i#*:}"
+    break
+  fi
+  prev="$i"
+done
+
+if [[ -n "$SOCKS_PORT" ]]; then
+  # Listen on the SOCKS port using nc (if available) or just a simple socat/python
+  # Since we are in a limited environment, we'll try python3 which is common.
+  python3 -c "import socket; s=socket.socket(); s.bind(('127.0.0.1', $SOCKS_PORT)); s.listen(1); import time; time.sleep(3600)" &
+  PY_PID=$!
+fi
+
+trap '[[ -n "${PY_PID:-}" ]] && kill $PY_PID; exit 0' TERM INT
 while true; do
   sleep 1
 done
@@ -305,10 +325,26 @@ func writeLoggingSSHBinary(t *testing.T, logPath string) string {
 	script := `#!/usr/bin/env bash
 set -euo pipefail
 printf '%s\n' "$*" > "` + logPath + `"
-if [[ "${1:-}" == "-G" ]]; then
+if [[ "$*" == *"-G"* ]]; then
   exit 0
 fi
-trap 'exit 0' TERM INT
+
+# Extract SOCKS port from args
+SOCKS_PORT=""
+for i in "$@"; do
+  if [[ "${prev:-}" == "-D" ]]; then
+    SOCKS_PORT="${i#*:}"
+    break
+  fi
+  prev="$i"
+done
+
+if [[ -n "$SOCKS_PORT" ]]; then
+  python3 -c "import socket; s=socket.socket(); s.bind(('127.0.0.1', $SOCKS_PORT)); s.listen(1); import time; time.sleep(3600)" &
+  PY_PID=$!
+fi
+
+trap '[[ -n "${PY_PID:-}" ]] && kill $PY_PID; exit 0' TERM INT
 while true; do
   sleep 1
 done
